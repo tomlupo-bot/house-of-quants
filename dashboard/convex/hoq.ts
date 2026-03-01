@@ -1,6 +1,8 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// ===== Queries =====
+
 export const getAgents = query({
   args: {},
   handler: async (ctx) => {
@@ -53,7 +55,22 @@ export const getThoughts = query({
   },
 });
 
-// Mutations for seeding / agent writes
+export const getContent = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("hoq_content").order("desc").take(20);
+  },
+});
+
+export const getTokenCosts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("hoq_token_costs").order("desc").take(100);
+  },
+});
+
+// ===== Mutations =====
+
 export const upsertAgent = mutation({
   args: {
     agentId: v.string(),
@@ -83,6 +100,104 @@ export const addSignal = mutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("hoq_signals", { ...args, timestamp: Date.now() });
+  },
+});
+
+export const addTrade = mutation({
+  args: {
+    symbol: v.string(),
+    side: v.string(),
+    size: v.float64(),
+    price: v.float64(),
+    fee: v.optional(v.float64()),
+    agentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("hoq_trades", { ...args, executedAt: Date.now() });
+  },
+});
+
+export const updateCapital = mutation({
+  args: {
+    pool: v.string(),
+    amount: v.float64(),
+    currency: v.string(),
+    allocatedTo: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.query("hoq_capital").filter(q => q.eq(q.field("pool"), args.pool)).first();
+    if (existing) {
+      await ctx.db.patch(existing._id, { amount: args.amount, updatedAt: Date.now() });
+    } else {
+      await ctx.db.insert("hoq_capital", { ...args, updatedAt: Date.now() });
+    }
+  },
+});
+
+export const addEquitySnapshot = mutation({
+  args: {
+    totalEquity: v.float64(),
+    dailyPnl: v.float64(),
+    drawdown: v.optional(v.float64()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("hoq_equity", { ...args, timestamp: Date.now() });
+  },
+});
+
+export const addTokenCost = mutation({
+  args: {
+    agentId: v.string(),
+    model: v.string(),
+    inputTokens: v.float64(),
+    outputTokens: v.float64(),
+    cost: v.float64(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("hoq_token_costs", { ...args, timestamp: Date.now() });
+  },
+});
+
+export const addThought = mutation({
+  args: {
+    agentId: v.string(),
+    thought: v.string(),
+    context: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("hoq_agent_thoughts", { ...args, timestamp: Date.now() });
+  },
+});
+
+export const upsertPosition = mutation({
+  args: {
+    symbol: v.string(),
+    side: v.string(),
+    size: v.float64(),
+    entryPrice: v.float64(),
+    currentPrice: v.optional(v.float64()),
+    pnl: v.optional(v.float64()),
+    agentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.query("hoq_positions").withIndex("by_symbol", q => q.eq("symbol", args.symbol)).first();
+    if (existing) {
+      await ctx.db.patch(existing._id, { ...args, openedAt: existing.openedAt });
+    } else {
+      await ctx.db.insert("hoq_positions", { ...args, openedAt: Date.now() });
+    }
+  },
+});
+
+export const addContent = mutation({
+  args: {
+    agentId: v.string(),
+    type: v.string(),
+    title: v.string(),
+    body: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("hoq_content", { ...args, createdAt: Date.now() });
   },
 });
 

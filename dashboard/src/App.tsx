@@ -10,21 +10,40 @@ import Footer from './components/Footer';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import { TradeEvent, Task, TabId } from './types';
 import { INITIAL_TASKS, generateRandomEvent, INITIAL_AGENTS } from './constants';
+import { useSignals } from './hooks/useHoQ';
 
 const App: React.FC = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [events, setEvents] = useState<TradeEvent[]>([]);
+  const [mockEvents, setMockEvents] = useState<TradeEvent[]>([]);
   const [tasks] = useState<Task[]>(INITIAL_TASKS);
   const [activeTab, setActiveTab] = useState<TabId>('agents');
 
+  const convexSignals = useSignals();
+
+  // Map Convex signals to TradeEvent format for the feed
+  const events: TradeEvent[] = convexSignals && convexSignals.length > 0
+    ? convexSignals.map(s => ({
+        id: s._id,
+        agentId: s.agentId,
+        agentName: s.agentId,
+        agentEmoji: '📡',
+        type: s.type as any,
+        message: s.message,
+        timestamp: s.timestamp,
+        severity: s.severity as any,
+      }))
+    : mockEvents;
+
   useEffect(() => {
+    // Only generate mock events if no Convex signals
+    if (convexSignals && convexSignals.length > 0) return;
     const interval = setInterval(() => {
       const newEvent = generateRandomEvent(INITIAL_AGENTS);
-      setEvents(prev => [newEvent, ...prev].slice(0, 100));
+      setMockEvents(prev => [newEvent, ...prev].slice(0, 100));
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [convexSignals]);
 
   const renderContent = () => {
     switch (activeTab) {

@@ -1,10 +1,6 @@
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
-// Convex query hooks for House of Quants
-// These will return undefined until Convex tables are populated
-// Components fall back to mock data from constants.ts
-
 export const useAgents = () => {
   try {
     return useQuery(api.hoq.getAgents) ?? null;
@@ -32,6 +28,46 @@ export const useCapital = () => {
 export const usePositions = () => {
   try {
     return useQuery(api.hoq.getPositions) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const useTrades = () => {
+  try {
+    return useQuery(api.hoq.getTrades) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const useEquity = () => {
+  try {
+    return useQuery(api.hoq.getEquity) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const useContent = () => {
+  try {
+    return useQuery(api.hoq.getContent) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const useTokenCosts = () => {
+  try {
+    return useQuery(api.hoq.getTokenCosts) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const useThoughts = (agentId?: string) => {
+  try {
+    return useQuery(api.hoq.getThoughts, agentId ? { agentId } : {}) ?? null;
   } catch {
     return null;
   }

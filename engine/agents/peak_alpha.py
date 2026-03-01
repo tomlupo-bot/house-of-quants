@@ -5,7 +5,10 @@ from utils import mcp_client
 
 class PeakAlpha(BaseAgent):
     name = "Peak Alpha"
-    agent_id = "peak_alpha"
+    agent_id = "optimizer-1"
+    role = "Portfolio Optimizer"
+    emoji = "🧠"
+    color = "#8b5cf6"
     model = "anthropic/claude-sonnet-4-20250514"
     personality = "Strategic portfolio architect. Thinks in allocations, correlations, and risk-adjusted returns."
     system_prompt = """You are Peak Alpha — the strategic portfolio optimizer of a crypto trading collective.

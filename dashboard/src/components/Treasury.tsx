@@ -1,24 +1,46 @@
 import React from 'react';
 import { Wallet, TrendingDown, PieChart, Flame, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useCapital } from '../hooks/useHoQ';
+
+const MOCK_ALLOCATIONS = [
+  { name: 'Active Trading', pct: 40, color: '#10b981', amount: '$200,000' },
+  { name: 'Prediction Markets', pct: 20, color: '#ec4899', amount: '$100,000' },
+  { name: 'DeFi Yield', pct: 15, color: '#8b5cf6', amount: '$75,000' },
+  { name: 'Stablecoins Reserve', pct: 15, color: '#3b82f6', amount: '$75,000' },
+  { name: 'Research Budget', pct: 10, color: '#06b6d4', amount: '$50,000' },
+];
+
+const POOL_COLORS: Record<string, string> = {
+  'Active Trading': '#10b981',
+  'Prediction Markets': '#ec4899',
+  'DeFi Yield': '#8b5cf6',
+  'Stablecoins Reserve': '#3b82f6',
+  'Research Budget': '#06b6d4',
+};
 
 const Treasury: React.FC = () => {
-  const allocations = [
-    { name: 'Active Trading', pct: 40, color: '#10b981', amount: '$200,000' },
-    { name: 'Prediction Markets', pct: 20, color: '#ec4899', amount: '$100,000' },
-    { name: 'DeFi Yield', pct: 15, color: '#8b5cf6', amount: '$75,000' },
-    { name: 'Stablecoins Reserve', pct: 15, color: '#3b82f6', amount: '$75,000' },
-    { name: 'Research Budget', pct: 10, color: '#06b6d4', amount: '$50,000' },
-  ];
+  const convexCapital = useCapital();
 
-  const totalCapital = 500000;
+  const hasLiveData = convexCapital && convexCapital.length > 0;
+  const totalCapital = hasLiveData
+    ? convexCapital.reduce((sum, c) => sum + c.amount, 0)
+    : 500000;
+
+  const allocations = hasLiveData
+    ? convexCapital.map(c => ({
+        name: c.pool,
+        pct: totalCapital > 0 ? Math.round((c.amount / totalCapital) * 100) : 0,
+        color: POOL_COLORS[c.pool] || '#6b7280',
+        amount: `$${c.amount.toLocaleString()}`,
+      }))
+    : MOCK_ALLOCATIONS;
 
   return (
     <div className="h-full bg-[#050505] p-4 md:p-8 overflow-y-auto custom-scrollbar">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Wallet, color: 'emerald', label: 'Total Capital', value: '$500,000', sub: 'Deployed across 5 pools' },
+            { icon: Wallet, color: 'emerald', label: 'Total Capital', value: `$${totalCapital.toLocaleString()}`, sub: `Deployed across ${allocations.length} pools` },
             { icon: TrendingDown, color: 'red', label: 'Monthly Burn', value: '$2,140', sub: 'API + infra + data feeds' },
             { icon: ArrowUpRight, color: 'emerald', label: 'Monthly Revenue', value: '$18,492', sub: '+12.4% vs last month' },
             { icon: Flame, color: 'amber', label: 'Runway', value: '∞', sub: 'Revenue > burn' },
@@ -34,14 +56,13 @@ const Treasury: React.FC = () => {
           ))}
         </div>
 
-        {/* Allocation */}
         <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8">
           <div className="flex items-center gap-3 mb-8">
             <PieChart className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold text-white">Capital Allocation</h3>
+            {hasLiveData && <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">LIVE</span>}
           </div>
 
-          {/* Pie approximation as bar */}
           <div className="flex h-4 rounded-full overflow-hidden mb-8">
             {allocations.map((a) => (
               <div key={a.name} style={{ width: `${a.pct}%`, backgroundColor: a.color }} className="transition-all" />
@@ -62,7 +83,6 @@ const Treasury: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Transactions */}
         <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8">
           <h3 className="text-lg font-bold text-white mb-6">Recent Treasury Movements</h3>
           <div className="space-y-3">

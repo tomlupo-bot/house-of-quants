@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Agent, AgentStatus } from '../types';
 import { INITIAL_AGENTS, getRandomStatus } from '../constants';
+import { useAgents } from '../hooks/useHoQ';
 
 const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
   const getStatusColor = (status: AgentStatus) => {
@@ -37,7 +38,27 @@ const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
 };
 
 const TradingFloor: React.FC = () => {
-  const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS);
+  const convexAgents = useAgents();
+
+  const baseAgents: Agent[] = convexAgents && convexAgents.length > 0
+    ? convexAgents.map((a, i) => ({
+        id: a.agentId,
+        name: a.name,
+        role: a.role,
+        status: a.status as AgentStatus,
+        emoji: a.emoji,
+        lastThought: a.lastThought,
+        color: a.color,
+        x: 15 + (i % 4) * 22,
+        y: 25 + Math.floor(i / 4) * 35,
+      }))
+    : INITIAL_AGENTS;
+
+  const [agents, setAgents] = useState<Agent[]>(baseAgents);
+
+  useEffect(() => {
+    setAgents(baseAgents);
+  }, [convexAgents]);
 
   useEffect(() => {
     const interval = setInterval(() => {

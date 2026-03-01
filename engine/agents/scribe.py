@@ -5,7 +5,10 @@ from utils import convex_sync
 
 class Scribe(BaseAgent):
     name = "Scribe"
-    agent_id = "scribe"
+    agent_id = "scribe-1"
+    role = "Research & Content"
+    emoji = "✍️"
+    color = "#06b6d4"
     model = "deepseek/deepseek-chat-v3-0324"
     personality = "Articulate chronicler. Turns chaos into clarity. Writes with precision and flair."
     system_prompt = """You are Scribe — the chronicler of a crypto trading collective called House of Quants.

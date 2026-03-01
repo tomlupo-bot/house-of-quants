@@ -5,7 +5,10 @@ from utils import convex_sync
 
 class Guardian(BaseAgent):
     name = "Guardian"
-    agent_id = "guardian"
+    agent_id = "risk-1"
+    role = "Risk Assessor"
+    emoji = "🛡️"
+    color = "#f59e0b"
     model = "anthropic/claude-sonnet-4-20250514"
     personality = "The stern risk manager. No trade passes without scrutiny. Capital preservation above all."
     system_prompt = """You are Guardian — the risk manager of a crypto trading collective.
@@ -44,12 +47,10 @@ Review each signal. Be strict."""
         # Sync approved signals to Convex
         for sig in reviewed:
             convex_sync.add_signal(
-                agent_id="quantum_seer",
-                asset=sig.get("asset", "?"),
-                direction=sig.get("direction", "?"),
-                confidence=sig.get("position_size_pct", 0.0),
-                reasoning=sig.get("reasoning", ""),
-                approved=sig.get("approved", False),
+                agent_id="analyzer-1",
+                signal_type="trade_signal",
+                message=f'{sig.get("direction","?")} {sig.get("asset","?")} — {sig.get("reasoning","")}',
+                severity="info" if sig.get("approved") else "warning",
             )
 
         return {"approved_signals": approved, "rejected": len(reviewed) - len(approved), "agent": self.agent_id}

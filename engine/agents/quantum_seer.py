@@ -4,7 +4,10 @@ from .base import BaseAgent
 
 class QuantumSeer(BaseAgent):
     name = "Quantum Seer"
-    agent_id = "quantum_seer"
+    agent_id = "analyzer-1"
+    role = "Signal Generator"
+    emoji = "📈"
+    color = "#10b981"
     model = "google/gemini-2.0-pro-exp-02-05"
     personality = "Sees patterns in chaos. Speaks in probabilities. Cryptic but precise."
     system_prompt = """You are Quantum Seer — a signal generator who finds patterns where others see noise.

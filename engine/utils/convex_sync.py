@@ -1,6 +1,5 @@
 import os
 import json
-import time
 import logging
 from urllib.request import Request, urlopen
 from urllib.error import URLError
@@ -36,58 +35,98 @@ def _call(fn_path: str, args: dict) -> dict | None:
         return None
 
 
-def upsert_agent(agent_id: str, name: str, status: str, last_thought: str,
-                 model: str, tokens_used: int = 0, cost_usd: float = 0.0,
-                 personality: str = "", pnl: float = 0.0):
-    return _call("agents:upsertAgent", {
+def upsert_agent(agent_id: str, name: str, role: str, emoji: str,
+                 status: str, last_thought: str, color: str):
+    return _call("hoq:upsertAgent", {
         "agentId": agent_id,
         "name": name,
+        "role": role,
+        "emoji": emoji,
         "status": status,
         "lastThought": last_thought,
-        "model": model,
-        "tokensUsed": tokens_used,
-        "costUsd": cost_usd,
-        "personality": personality,
-        "pnl": pnl,
+        "color": color,
     })
 
 
-def add_signal(agent_id: str, asset: str, direction: str, confidence: float,
-               reasoning: str, approved: bool = False):
-    return _call("signals:addSignal", {
+def add_signal(agent_id: str, signal_type: str, message: str,
+               severity: str = "info"):
+    return _call("hoq:addSignal", {
         "agentId": agent_id,
-        "asset": asset,
-        "direction": direction,
-        "confidence": confidence,
-        "reasoning": reasoning,
-        "approved": approved,
+        "type": signal_type,
+        "message": message,
+        "severity": severity,
     })
 
 
-def add_trade(agent_id: str, asset: str, side: str, size: float,
-              price: float, pnl: float = 0.0):
-    return _call("trades:addTrade", {
-        "agentId": agent_id,
-        "asset": asset,
+def add_trade(symbol: str, side: str, size: float, price: float,
+              agent_id: str, fee: float = 0.0):
+    return _call("hoq:addTrade", {
+        "symbol": symbol,
         "side": side,
         "size": size,
         "price": price,
-        "pnl": pnl,
+        "agentId": agent_id,
+        "fee": fee,
     })
 
 
-def update_capital(total: float, token_costs: float, trading_pnl: float, tier: str):
-    return _call("capital:updateCapital", {
-        "total": total,
-        "tokenCosts": token_costs,
-        "tradingPnl": trading_pnl,
-        "tier": tier,
+def update_capital(pool: str, amount: float, currency: str = "USDT",
+                   allocated_to: str | None = None):
+    args = {"pool": pool, "amount": amount, "currency": currency}
+    if allocated_to:
+        args["allocatedTo"] = allocated_to
+    return _call("hoq:updateCapital", args)
+
+
+def add_thought(agent_id: str, thought: str, context: str | None = None):
+    args = {"agentId": agent_id, "thought": thought}
+    if context:
+        args["context"] = context
+    return _call("hoq:addThought", args)
+
+
+def add_token_cost(agent_id: str, model: str, input_tokens: int,
+                   output_tokens: int, cost: float):
+    return _call("hoq:addTokenCost", {
+        "agentId": agent_id,
+        "model": model,
+        "inputTokens": float(input_tokens),
+        "outputTokens": float(output_tokens),
+        "cost": cost,
+    })
+
+
+def add_equity_snapshot(total_equity: float, daily_pnl: float,
+                        drawdown: float | None = None):
+    args = {"totalEquity": total_equity, "dailyPnl": daily_pnl}
+    if drawdown is not None:
+        args["drawdown"] = drawdown
+    return _call("hoq:addEquitySnapshot", args)
+
+
+def upsert_position(symbol: str, side: str, size: float, entry_price: float,
+                     agent_id: str, current_price: float | None = None,
+                     pnl: float | None = None):
+    args = {
+        "symbol": symbol, "side": side, "size": size,
+        "entryPrice": entry_price, "agentId": agent_id,
+    }
+    if current_price is not None:
+        args["currentPrice"] = current_price
+    if pnl is not None:
+        args["pnl"] = pnl
+    return _call("hoq:upsertPosition", args)
+
+
+def add_content(agent_id: str, content_type: str, title: str, body: str):
+    return _call("hoq:addContent", {
+        "agentId": agent_id,
+        "type": content_type,
+        "title": title,
+        "body": body,
     })
 
 
 def add_log(agent_id: str, message: str, level: str = "info"):
-    return _call("logs:addLog", {
-        "agentId": agent_id,
-        "message": message,
-        "level": level,
-    })
+    """Legacy log call — routes to addSignal."""
+    return add_signal(agent_id, "log", message, severity=level)

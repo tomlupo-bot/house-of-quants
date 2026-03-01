@@ -10,6 +10,9 @@ class BaseAgent:
     agent_id: str = "base"
     model: str = "google/gemini-2.0-flash-001"
     personality: str = ""
+    role: str = "Agent"
+    emoji: str = "🤖"
+    color: str = "#6b7280"
     system_prompt: str = "You are a helpful assistant."
 
     def __init__(self, capital_pool, dry_run: bool = False):
@@ -55,12 +58,11 @@ class BaseAgent:
         convex_sync.upsert_agent(
             agent_id=self.agent_id,
             name=self.name,
+            role=self.role,
+            emoji=self.emoji,
             status=self.status,
             last_thought=self.last_thought,
-            model=self.model,
-            tokens_used=self.total_tokens,
-            cost_usd=self.total_cost,
-            personality=self.personality,
+            color=self.color,
         )
 
     def run(self, context: dict) -> dict:

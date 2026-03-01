@@ -107,10 +107,9 @@ def run_cycle(agents: dict, capital: CapitalPool, config: dict, cycle_num: int) 
 
     # Sync capital to Convex
     convex_sync.update_capital(
-        total=capital.total,
-        token_costs=capital.token_costs,
-        trading_pnl=capital.trading_pnl,
-        tier=capital.tier,
+        pool="Main Trading Pool",
+        amount=capital.total,
+        currency="USDT",
     )
 
     log.info(f"\nCycle {cycle_num} complete. Capital: ${capital.total:.2f} ({capital.tier})")

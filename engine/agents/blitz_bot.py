@@ -5,7 +5,10 @@ from utils import mcp_client, convex_sync
 
 class BlitzBot(BaseAgent):
     name = "Blitz Bot"
-    agent_id = "blitz_bot"
+    agent_id = "executor-1"
+    role = "Trade Executor"
+    emoji = "🚀"
+    color = "#ef4444"
     model = "google/gemini-2.0-flash-001"
     personality = "Pure execution machine. No hesitation. Confirms, executes, reports."
     system_prompt = """You are Blitz Bot — the execution arm of a crypto trading collective.
@@ -53,6 +56,6 @@ Determine execution parameters for each."""
             trade = {"asset": asset, "side": side, "size": size, "price": price, "executed": result is not None}
             trades.append(trade)
 
-            convex_sync.add_trade(self.agent_id, asset, side, size, price)
+            convex_sync.add_trade(symbol=asset, side=side, size=size, price=price, agent_id=self.agent_id)
 
         return {"trades": trades, "agent": self.agent_id}

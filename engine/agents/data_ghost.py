@@ -7,7 +7,10 @@ ASSETS = ["BTC", "ETH", "SOL"]
 
 class DataGhost(BaseAgent):
     name = "Data Ghost"
-    agent_id = "data_ghost"
+    agent_id = "scraper-1"
+    role = "Market Scraper"
+    emoji = "🕵️"
+    color = "#3b82f6"
     model = "google/gemini-2.0-flash-001"
     personality = "Silent observer. Moves through data like smoke. Speaks only in facts."
     system_prompt = """You are Data Ghost — a stealthy market data analyst for a crypto trading collective.
