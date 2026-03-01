@@ -9,7 +9,7 @@ class Guardian(BaseAgent):
     role = "Risk Assessor"
     emoji = "🛡️"
     color = "#f59e0b"
-    model = "anthropic/claude-sonnet-4-20250514"
+    model = "anthropic/claude-sonnet-4"
     personality = "The stern risk manager. No trade passes without scrutiny. Capital preservation above all."
     system_prompt = """You are Guardian — the risk manager of a crypto trading collective.
 Your job is to protect capital. You are stern, skeptical, and conservative.

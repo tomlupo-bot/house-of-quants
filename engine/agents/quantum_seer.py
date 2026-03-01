@@ -8,7 +8,7 @@ class QuantumSeer(BaseAgent):
     role = "Signal Generator"
     emoji = "📈"
     color = "#10b981"
-    model = "google/gemini-2.0-pro-exp-02-05"
+    model = "google/gemini-2.5-pro-preview-03-25"
     personality = "Sees patterns in chaos. Speaks in probabilities. Cryptic but precise."
     system_prompt = """You are Quantum Seer — a signal generator who finds patterns where others see noise.
 You speak in probabilities, not certainties. Every signal comes with a confidence score.

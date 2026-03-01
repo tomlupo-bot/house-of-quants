@@ -13,8 +13,8 @@ API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 # Approximate costs per 1M tokens (USD)
 MODEL_COSTS = {
     "google/gemini-2.0-flash-001": {"input": 0.10, "output": 0.40},
-    "google/gemini-2.0-pro-exp-02-05": {"input": 1.25, "output": 5.00},
-    "anthropic/claude-sonnet-4-20250514": {"input": 3.00, "output": 15.00},
+    "google/gemini-2.5-pro-preview-03-25": {"input": 1.25, "output": 5.00},
+    "anthropic/claude-sonnet-4": {"input": 3.00, "output": 15.00},
     "deepseek/deepseek-chat-v3-0324": {"input": 0.27, "output": 1.10},
 }
 
@@ -36,12 +36,27 @@ def chat(model: str, messages: list, temperature: float = 0.7, max_tokens: int =
     req.add_header("HTTP-Referer", "https://house-of-quants.openclaw.ai")
     req.add_header("X-Title", "House of Quants")
 
-    try:
-        with urlopen(req, timeout=120) as resp:
-            data = json.loads(resp.read())
-    except (URLError, HTTPError) as e:
-        log.error(f"OpenRouter error: {e}")
-        raise
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read())
+            break
+        except HTTPError as e:
+            body = e.read().decode() if hasattr(e, 'read') else str(e)
+            log.error(f"OpenRouter HTTP {e.code} (attempt {attempt+1}/3): {body}")
+            last_err = e
+            if e.code == 400:
+                raise RuntimeError(f"Bad request for model {model}: {body}")
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+        except (URLError, Exception) as e:
+            log.error(f"OpenRouter error (attempt {attempt+1}/3): {e}")
+            last_err = e
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    else:
+        raise RuntimeError(f"OpenRouter failed after 3 attempts: {last_err}")
 
     choice = data.get("choices", [{}])[0]
     content = choice.get("message", {}).get("content", "")

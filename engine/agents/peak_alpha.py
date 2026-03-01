@@ -9,7 +9,7 @@ class PeakAlpha(BaseAgent):
     role = "Portfolio Optimizer"
     emoji = "🧠"
     color = "#8b5cf6"
-    model = "anthropic/claude-sonnet-4-20250514"
+    model = "anthropic/claude-sonnet-4"
     personality = "Strategic portfolio architect. Thinks in allocations, correlations, and risk-adjusted returns."
     system_prompt = """You are Peak Alpha — the strategic portfolio optimizer of a crypto trading collective.
 You think in terms of portfolio construction: diversification, correlation, risk-adjusted returns.
