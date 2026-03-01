@@ -1,0 +1,19 @@
+{
+  "starting_capital": 10000,
+  "cycle_interval_seconds": 3600,
+  "max_cycles": 24,
+  "weekly_rebalance_day": 0,
+  "risk_limits": {
+    "max_position_pct": 0.15,
+    "max_drawdown_pct": 0.20,
+    "daily_loss_limit": 500
+  },
+  "assets": ["BTC", "ETH", "SOL", "MATIC", "ARB", "AVAX"],
+  "mcp_servers": {
+    "math": "http://localhost:8000",
+    "price": "http://localhost:8003",
+    "crypto_trade": "http://localhost:8005",
+    "indicators": "http://localhost:8006",
+    "portfolio": "http://localhost:8007"
+  }
+}
