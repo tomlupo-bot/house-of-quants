@@ -7,7 +7,7 @@ STARTING_CAPITAL = 10_000.0
 
 TIERS = [
     (1.20, "thriving"),
-    (1.00, "stable"),
+    (0.995, "stable"),
     (0.80, "struggling"),
     (0.60, "critical"),
     (0.00, "dead"),
